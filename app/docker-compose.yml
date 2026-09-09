@@ -1,0 +1,16 @@
+services:
+  loreforge:
+    build: .
+    image: loreforge:latest
+    container_name: loreforge
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      # Set to the public URL you reach the app on (needed for form actions behind a proxy).
+      ORIGIN: http://localhost:3000
+      # Uncomment when running behind a reverse proxy that sets these headers.
+      # PROTOCOL_HEADER: x-forwarded-proto
+      # HOST_HEADER: x-forwarded-host
+    volumes:
+      - ./data:/data
