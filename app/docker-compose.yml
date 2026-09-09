@@ -1,16 +1,22 @@
+# Build from source. From the repo root: cd app && docker compose up -d --build
+# For pull-and-run without cloning, see ../docker-compose.yml.
 services:
   loreforge:
     build: .
-    image: loreforge:latest
+    image: loreforge:local
     container_name: loreforge
     restart: unless-stopped
     ports:
       - '3000:3000'
     environment:
-      # Set to the public URL you reach the app on (needed for form actions behind a proxy).
       ORIGIN: http://localhost:3000
-      # Uncomment when running behind a reverse proxy that sets these headers.
       # PROTOCOL_HEADER: x-forwarded-proto
       # HOST_HEADER: x-forwarded-host
     volumes:
-      - ./data:/data
+      - loreforge-data:/data
+      # Bind mount alternative (container runs as uid 1000):
+      #   mkdir -p ./data && sudo chown 1000:1000 ./data
+      # - ./data:/data
+
+volumes:
+  loreforge-data:

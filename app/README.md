@@ -29,19 +29,41 @@ One Node process, one SQLite file, no external services.
 
 ## Run it
 
-### Docker (recommended)
+### Docker Compose, prebuilt image (recommended)
+
+The image is published to GHCR by GitHub Actions on every push to `main`
+(`ghcr.io/stanleymejia/loreforge:latest`, amd64 + arm64). You only need the compose file:
+
+```bash
+curl -O https://raw.githubusercontent.com/StanleyMejia/StanleyMejia/main/docker-compose.yml
+docker compose up -d
+# → http://localhost:3000
+```
+
+The database lives in the `loreforge-data` named volume (`/data/loreforge.db`, WAL mode).
+Back it up with `docker run --rm -v loreforge-data:/data -v "$PWD":/backup alpine tar czf
+/backup/loreforge-data.tgz -C /data .`, or use the in-app JSON export. To use a bind mount
+instead, see the comments in the compose file (the container runs as uid 1000).
+
+Behind a reverse proxy, set `ORIGIN` to the public URL (e.g. `https://lore.example.lan`) and
+uncomment `PROTOCOL_HEADER` / `HOST_HEADER`.
+
+Configuration is all environment variables:
+
+| Variable                         | Default              | Purpose                                             |
+| -------------------------------- | -------------------- | --------------------------------------------------- |
+| `ORIGIN`                         | –                    | Public origin; form actions are rejected without it |
+| `PORT`                           | `3000`               | Listen port inside the container                    |
+| `DATABASE_URL`                   | `/data/loreforge.db` | SQLite file path                                    |
+| `BODY_SIZE_LIMIT`                | `10M`                | Max request body (long chapters, big panels)        |
+| `PROTOCOL_HEADER`, `HOST_HEADER` | –                    | Trust proxy headers                                 |
+
+### Docker Compose, build from source
 
 ```bash
 cd app
 docker compose up -d --build
-# → http://localhost:3000
 ```
-
-The database lives in `./data/loreforge.db` (bind-mounted to `/data`). Back it up by copying
-that directory or by using the in-app JSON export.
-
-Behind a reverse proxy, set `ORIGIN` to the public URL (e.g. `https://lore.example.lan`) and
-uncomment `PROTOCOL_HEADER` / `HOST_HEADER` in `docker-compose.yml`.
 
 ### Bare metal
 
